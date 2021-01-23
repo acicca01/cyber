@@ -1,0 +1,10 @@
+Both the train and test set suffer from having many zeros (well over 75% ).
+This can be due to some parameters not being available for all packets sampled. 
+Figure 1 represents the value of the datasets through an heatmap where values of zeros are coded in white and values > 0 are assigned a red gradient. Not just the figure displays many zeros, but also some features seem to have little variation of color throughout the dataset. Also the features range between 0 and 1. 
+I will split the training data so to check the accuracy of the held out validation set. And will also check how well the estimate of the error is when compare with the error rate on the test set. 
+Given a support vector classifier with radial basis kernel , I get a 0.99 accuracy on the validation set. 
+On the real test, however, the accuracy is a mere 0.50 . That not only indicates overfitting , but also shows that the estimate of the validation error is badly underestimating the true test error. 
+This makes model selection and model tuning also very difficult.
+Considering the number of zeros I decide to pre-process the features set with normalization , so that all features have length = 1. I will then use knn classifier and 10-fold cross validation in order to estimate the test error rate. 
+In order to prevent knowledge leakage from the learned normalization onto the test set I will use pipeline. 
+Hence the need to seek for a better representation of the feature set. 
