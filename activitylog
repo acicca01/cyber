@@ -6,5 +6,7 @@ Given a support vector classifier with radial basis kernel , I get a 0.99 accura
 On the real test, however, the accuracy is a mere 0.50 . That not only indicates overfitting , but also shows that the estimate of the validation error is badly underestimating the true test error. 
 This makes model selection and model tuning also very difficult.
 Considering the number of zeros I decide to pre-process the features set with normalization , so that all features have length = 1. I will then use knn classifier and 10-fold cross validation in order to estimate the test error rate. 
-In order to prevent knowledge leakage from the learned normalization onto the test set I will use pipeline. 
-Hence the need to seek for a better representation of the feature set. 
+In order to prevent knowledge leakage from the learned normalization onto the test set I will use Pipeline.
+Unfortunately even in this case with 10-fold cross-validation the estimated test error rate looks unrealistically low (nearly 100% accuracy).
+However normalizing the data and using KNeighbors Classifier has lifted the accuracy on the test set of about 3% .  
+The above results suggest that I need to seek for a better representation of the training feature set. 
