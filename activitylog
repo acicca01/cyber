@@ -10,3 +10,14 @@ In order to prevent knowledge leakage from the learned normalization onto the te
 Unfortunately even in this case with 10-fold cross-validation the estimated test error rate looks unrealistically low (nearly 100% accuracy).
 However normalizing the data and using KNeighbors Classifier has lifted the accuracy on the test set of about 3% .  
 The above results suggest that I need to seek for a better representation of the training feature set. 
+One simple solution would be to drop training features which are always zeros. I can then put the results of several extracted and selected feature together via FeatureUnion.
+As it stands ,I would not use Recursive Feature Elimination to select attributes. This is because every model seems to be doing unrealistically well on the training data. 
+
+*--model1
+Instead I will choose a mixture of PCA , non-negagive matrix factorization and univariate selection (chi2) . 
+
+*model2
+Choose 3 best features with chi  square , first 3 pricnipal component, after rescaling between 0  and 1 (min max scaler)  
+
+*-for later
+consider grid search for both svm and k-neighborclassifier
