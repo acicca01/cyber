@@ -14,10 +14,19 @@ One simple solution would be to drop training features which are always zeros. I
 As it stands ,I would not use Recursive Feature Elimination to select attributes. This is because every model seems to be doing unrealistically well on the training data. 
 
 *--model1
-Instead I will choose a mixture of PCA , non-negagive matrix factorization and univariate selection (chi2) . 
+I use feature union to concatenate 30 features obtained by univariate selection (chi2) , PCA and Non-Negative Matrix Factorization and I chain the result to a KNN . 
+There is still a huge problem with overfitting. 
+ 
 
 *model2
-Choose 3 best features with chi  square , first 3 pricnipal component, after rescaling between 0  and 1 (min max scaler)  
+I Choose 30 best features with chi  square , first 30 pricnipal component, and combine these together with the 78 non constant original features. 
+I then choose normalizer to preprocess the data and I pipe it into a linear SVM with stochastic gradient descent training. 
+The estimator performs quite well and seems to be very promising as I experience less overfitting and better accuracy.
+I perform grid search to choose the optimal level of regularization and the penalty for misclassification. 
+It turns out the cost of misclassifying a sample is very low (1.0000000000000003e-05 is preferred to the default 0.0001) , this is why I believe I'm able to reduce overfitting. 
+ 
+I now have an accuracy of 98% on 10-fold cross validation while the accuracy on the test is 96.8%. This is also showing that cross-validation estimate is more reliable. 
+
 
 *-for later
 consider grid search for both svm and k-neighborclassifier
