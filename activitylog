@@ -29,4 +29,8 @@ I now have an accuracy of 98% on 10-fold cross validation while the accuracy on 
 
 
 *-for later
-consider grid search for both svm and k-neighborclassifier
+Look for Random forest classifier
+If performs better you can use it for RFE lather together with SVC
+You then take original data (cleaned) add features with autoencoder ,and then use RFE with both SVM and CAST5  . Get it down to 5-6 features and use a NN classifier to classify.
+If it all goes well you cna supply figures and descriptiive tables with accuracy (i.e. false positive rate , and recall ) . You could look into the O'reilly book (French man one)
+Also listen to lesson about representation learning and coursework lesso again, and review your notes to add volume to the presentation. 
