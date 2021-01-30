@@ -25,6 +25,12 @@ The estimator performs quite well and seems to be very promising as I experience
 10 times stronger than the default .This reduces drastically overfitting 
 with an estimated accuracy of 98% with 10-fold cross validation and an accuracy on the test of 96.8%. This is also showing that cross-validation estimate is more reliable. 
 
+*model 3
+I then check RandomForestClassifier . I can only get 80 accuracy on test set and it seems to be overfitting even  using very large number of trees.Crossvslidation 
+is very diffcilut since the computation costr is vry high.
+
+*--Autoencoder
+I use sparse autoencoder with leakyrelu activatio function and batchnormalization. 
 
 *-for later
 Look for Random forest classifier
@@ -32,3 +38,9 @@ If performs better you can use it for RFE lather together with SVC
 You then take original data (cleaned) add features with autoencoder ,and then use RFE with both SVM and CAST5  . Get it down to 5-6 features and use a NN classifier to classify.
 If it all goes well you cna supply figures and descriptiive tables with accuracy (i.e. false positive rate , and recall ) . You could look into the O'reilly book (French man one)
 Also listen to lesson about representation learning and coursework lesso again, and review your notes to add volume to the presentation. 
+Taking out  zero variance variable to increase internal correlation of fwatuss.
+
+Try to heatmap the clean data where y = 1 (attack) vs where y = 0 (normal traffic)
+
+
+"High Bias in cross-validation is preventing me from grid searching"
