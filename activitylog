@@ -30,7 +30,12 @@ I then check RandomForestClassifier . I can only get 80 accuracy on test set and
 is very diffcilut since the computation costr is vry high.
 
 *--Autoencoder
-I use sparse autoencoder with leakyrelu activatio function and batchnormalization. 
+I use sparse autoencoder with leakyrelu activatio function and batchnormalization. I latent space has 1/3 of the original x_train_clean features. I combine them back with the original
+and I use model2 (the great SVM) for RFE . I select 10 features. It turns out the 2 feature from the latent space representation rank on top of all the original . 
+
+*-- Neural Netwrok classifier
+I create a NN with 3 drop out layers and activity regularizer on the output. Input data has only got the 10 features from the RFE. What I need to do is to get the combo dataset 
+(138 features) concatenate the 10 from the autoencoder and then RFE again this time extracting 100 features.  
 
 *-for later
 Look for Random forest classifier
