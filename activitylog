@@ -3,8 +3,17 @@ My aim is to provide justifications behind the decisions I take in order to prov
 Tables and figures contribute to the discussion and will be included in the appendix. 
 
 From a first look both the train and test sets suffer from having many zeros (well over 75% for each). 
-Given the large number of features captured this is to be expected as some parameters might not being available for each packets sampled. Nonetheless this exposes the risk
-Figure 1 represents the value of the datasets through an heatmap where values of zeros are coded in white and values > 0 are assigned a red gradient. Not just the figure displays many zeros, but also some features seem to have little variation of color throughout the dataset. Also the features range between 0 and 1. 
+Given the large number of features captured this is to be expected as some parameters might not being available for each packets sampled. Nonetheless this exposes the risk of having 
+poorly correlated features and weak dependency with the target variable. After all supervised estimators are built upon real world data and as such expect some degree of
+relation (linear or non linear) between features.
+
+Figure1 and Figure2 represent the values in the dataset through an heatmap where values of zeros are coded in white and values > 0 are assigned a red gradient. 
+Not just the figure displays many zeros, but also some features seem to have little to no variation of color throughout the dataset meaning that some of those might
+have constant values all the way through the samples. 
+
+I create an validation dataset by putting aside 1/3 of the training data , while keeping the rest of the unporcessed training data for training. 
+I use a support vector classifier to start my jounrey.
+
 I will split the training data so to check the accuracy of the held out validation set. And will also check how well the estimate of the error is when compare with the error rate on the test set. 
 Given a support vector classifier with radial basis kernel , I get a 0.99 accuracy on the validation set. 
 On the real test, however, the accuracy is a mere 0.50 . That not only indicates overfitting , but also shows that the estimate of the validation error is badly underestimating the true test error. 
