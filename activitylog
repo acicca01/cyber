@@ -59,21 +59,35 @@ overfitting of SVM , logistic regression and KNN.
 
 Additionally I merge the newly extracted/selected features with the original non-constant features. This remerging technique it's also used by Aminanto et al. [1] 
 together with normalization as pre-processing step. 
+
+----------> ??? 
+WHAT IS THE PONT OF SELECTING 30 FEATURES WITH FILTER AND THEN REMERGIN THEM INTO THE ORIGINAL . THAT MAKES THINGS NO GOOD FOR SURE. HOWEVER THIS COULD ALSO HINDER AT MY GOOD RESULT.
+OR MAYBE DUPLICATION OF FEATURES IS KEY ??    <------------------
+
 I then choose normalizer to preprocess the data and I pipe the whole chain of tranformation into a linear SVM with stochastic gradient descend training. 
 I also take advantage of a regularization parameter provided with the estimator interface (alpha parameter).  
 The estimator performs quite well and seems to be very promising as I experience less overfitting and better accuracy by setting the strength of the regularization term 
 10 times stronger than the default from scikit-learn.This reduces drastically overfitting 
 with an estimated test accuracy of 98% with 10-fold cross validation and an accuracy on the test of 96.8%. This is also showing that cross-validation estimate is more reliable. 
  
-
-I then check out a RandomForestClassifier. I can get 80% accuracy on test set and it seems to be overfitting even using very large number  of trees (800) each considering 
+I then check out a RandomForestClassifier on the same trasnformed data as for the previous SVM. I can get 80% accuracy on test set and it seems to be overfitting <----HOW DO YOU KNOW?
+even using very large number  of trees (800) each considering 
 up to 50 randomly selected features for each bootstrap dataset .
 Crossvalidation is out of question because of the computation cost accociated with the algorithm. Because of this reason I do not explore further this model as it's not performing as well
 as he SGD SVm and also it's not efficient. 
 
-*--Autoencoder
-I use sparse autoencoder with leakyrelu activatio function and batchnormalization. I latent space has 1/3 of the original x_train_clean features. I combine them back with the original
-and I use model2 (the great SVM) for RFE . I select 10 features. It turns out the 2 feature from the latent space representation rank on top of all the original . 
+I will try to build one last model, and see if I can improve test accuracy. I'm using accuracy as a guide to performance here as the class labels are balanced in both train
+and test. 
+I build 2 autoencoders with different (--->MAYBE SAME NEED TO MAKE A DECISION<----- )  topology and different activation functions. One is supposed to be more 
+advanced and bsed on cutting edge batchnormalization 
+ (Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift) and leakyrelu activation function. It also take advantage of a regularizer 
+ to add random de-activation of  neurons in the bottleneck layer. 
+ The other is more of a vanilla autoencoder. For their topology I invite to see fig X , fig Y in the appendix.
+
+The BLABLA autoencoder performs better. I choose that to extract round(78/3) features. I then combine them with clean data, 30 selected features ,30 PCA-ED extracted features.
+I use RFE with the SVM model I know performs better on a sample of that. The feautres  from the autoencoder latent space are indeed selected.
+I keep 138 features, keeping the dimensionality the same I effectively swap in the new fearures from the autoencoder. 
+
 
 *-- Neural Netwrok classifier
 I create a NN with 3 drop out layers and activity regularizer on the output. Input data has only got the 10 features from the RFE. What I need to do is to get the combo dataset 
