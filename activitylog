@@ -89,7 +89,12 @@ I select 78 best features, and I can see that all features generated from the au
 In a way I try to disqualify those existent featires that can't compete anymore with newly engineered one, trying to simulate some sort of 
 'natural selection' within the feature space.
 
-
+Finally I get to build a nerual netwrk. The this process has invloved lots of trial and error. Having a powerful network with many layers loaded up with neurons it's definetely
+not the solution and also bad idea in terms of computational resources.
+A plot of the topology of the network can be found in the appendix. Essentially 3 hidden layers with 5 , 4 and 3 neurons and 2 dropout layers prevent
+overfitting yet giving room for modelling more complex non linear behavior. The network performance in terms of accuracy on the test set is the ball park of 96% . 
+A key point in my opinion is that the model used is not as important. What matters is really the data engineering part of the problem. 
+This model together with the previous SVM are good candidates and deserve some further analysis on their performance.
 
 
 
