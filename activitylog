@@ -60,10 +60,6 @@ overfitting of SVM , logistic regression and KNN.
 Additionally I merge the newly extracted/selected features with the original non-constant features. This remerging technique it's also used by Aminanto et al. [1] 
 together with normalization as pre-processing step. 
 
-----------> ??? 
-WHAT IS THE PONT OF SELECTING 30 FEATURES WITH FILTER AND THEN REMERGIN THEM INTO THE ORIGINAL . THAT MAKES THINGS NO GOOD FOR SURE. HOWEVER THIS COULD ALSO HINDER AT MY GOOD RESULT.
-OR MAYBE DUPLICATION OF FEATURES IS KEY ??    <------------------
-
 I then choose normalizer to preprocess the data and I pipe the whole chain of tranformation into a linear SVM with stochastic gradient descend training. 
 I also take advantage of a regularization parameter provided with the estimator interface (alpha parameter).  
 The estimator performs quite well and seems to be very promising as I experience less overfitting and better accuracy by setting the strength of the regularization term 
@@ -76,12 +72,37 @@ up to 50 randomly selected features for each bootstrap dataset .
 Crossvalidation is out of question because of the computation cost accociated with the algorithm. Because of this reason I do not explore further this model as it's not performing as well
 as he SGD SVm and also it's not efficient. 
 
-I will try to build one last model, and see if I can improve test accuracy. I'm using accuracy as a guide to performance here as the class labels are balanced in both train
+I will try to build one last model, and see if I can improve test accuracy. I'm using accuracy as a performance index here as the class labels are balanced in both train
 and test. 
-I build 2 autoencoders with different (--->MAYBE SAME NEED TO MAKE A DECISION<----- )  topology and different activation functions. One is supposed to be more 
-advanced and bsed on cutting edge batchnormalization 
+I build 2 autoencoders with same topology but different activation functions. A plot of their structure is provided in the appendix. 
+The first one is a vanilla autoencoder , it presents 2 hidden layers  for the encoder, 
+a bottleneck and then grows back simmetrically for the decoder section. Rectified linear units activation functions are used throughout the autoencoder. 
+The idea is to shrink the number of features down to a third of the original in order to allow it to build some form of internal representation.
+The second one employes the same structure but with a different activation funciotn (LeakyRelu) , batch normalization layers which are supposed to help 
+with gradient vanishing problem and also speed up training and activity regularizer in the bottleneck which should mute the output of some of the neurons in the layer in
+a random fashion.
+Despite the high tech involved in the second autoencoder it only does marginally better in terms of validation loss. 
+Nonetheless I decide to stick with this one just to make the additional effort worth it and I find a compressed representation of the feature space with 26 features.
+I merge the engineered features back to the other engineered data and I apply RFE to wrap the previous SVM. This time because I know that  the previous SVM on this particular
+representation provides good unbiased estimate for the test error so it makes sense to use this wrapper as to select features. 
+I select 78 best features, and I can see that all features generated from the autoencoder are selected. Please note my training data set has grown in terms of number of features.
+In a way I try to disqualify those existent featires that can't compete anymore with newly engineered one, trying to simulate some sort of 
+'natural selection' within the feature space.
+
+
+
+
+
+
+
+
+
+
+
+
+
  (Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift) and leakyrelu activation function. It also take advantage of a regularizer 
- to add random de-activation of  neurons in the bottleneck layer. 
+ to add random de-activation of neurons in the bottleneck layer. 
  The other is more of a vanilla autoencoder. For their topology I invite to see fig X , fig Y in the appendix.
 
 The BLABLA autoencoder performs better. I choose that to extract round(78/3) features. I then combine them with clean data, 30 selected features ,30 PCA-ED extracted features.
