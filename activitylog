@@ -80,14 +80,19 @@ I merge the engineered features back to the other engineered data from previous 
 I select 10 best features, and I can see that some of the features generated from the autoencoder are selected. 
 
 
-Finally I get to building a neurual netwrk. The this process has invloved lots of trial and error. The main lesson learned is that having a powerful network with many layers 
-loaded up with plenty of neurons it's definetely not the solution and also a bad idea in terms of computational resources. 
-A plot of the topology of the network can be found in the appendix. Essentially 3 hidden layers with 5 , 4 and 3 neurons and 2 dropout layers prevent
-overfitting yet giving room for modelling more complex non linear behavior. The network performance in terms of accuracy on the test set is the ball park of 96% 
-while the cross validation estimate for test error is just below 98% . This model does not overfit , and in conjunction with the engineered data provides a robust platform. 
-A key point in my opinion is that the model used is not as important. What matters is really the data engineering part of the problem. 
-This model together with the previous SVM are good candidates and deserve some further analysis on their performance.
+Finally I get to building a neural netowrk. This process has invoved lots of trial and error. The main lesson learned is that having a powerful network with many layers 
+loaded up with plenty of neurons it's definetely not the solution and also a bad idea in terms of computational resources. In addition dropout layers are essential tools  
+for helping the trained model to generalise on new unseen instances of the data. A plot of the topology of the network can be found in the appendix. Essentially it consists of 3 hidden layers with 5 , 4 and 3 neurons and 2 dropout layers. 
+The optimal training stopping is achieved at epoch 13 with a batch size of 512. I've employed the use of callback which provides a mechanism to track the validation loss (measured on a validation split of 1/3 of the training data) and stop training as the loss starts increasing.  The network performance in terms of accuracy on the test set is the ball park of 90% , which is a good results considering the network is trained on 10 features. 
 
+In the context of an IDS system given 2 models with the same accuracy, I would choose a model with higher Recall over a model with higher precision.
+In this case both linear SVM and the above neural network performs at a test accuracy of 90% after training on 10 feautures.
+However the linear SVM is my preferred choice as it leaves undetected only 40 attacks compared to 1466 false negatives of the Neural Network with a detection rate of 99.8% .
+Such rate should be used carefully when attempting to compare this result with established state of the art baseline models. In fact this linear SVM mis-classifies many 
+normal instances as attacks (false alarnm rate ~ 19.3%) , giving the 'illusion' that the recall is actually very good.  
+Training the same linear SVM on a 78 features gives instead an accuracy of 96.7% with a recall of 99.7% and false alarm rate of 6% .
+All in all I'm happy my models perform worse than the current state of the art when adjusting for number of features used (detailed table in the appendix included for comparison). 
+IDS systems will gain more and more importance as we move to 5G where reinforcement learning will be more ubiquitoous in our lifes and critical applications that require high security such as self driving cars, and Industry 4.0 manufacturing plants will gain more traction.  
 
 
 [5] Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift
@@ -98,28 +103,6 @@ This model together with the previous SVM are good candidates and deserve some f
 
 
 
- (Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift) and leakyrelu activation function. It also take advantage of a regularizer 
- to add random de-activation of neurons in the bottleneck layer. 
- The other is more of a vanilla autoencoder. For their topology I invite to see fig X , fig Y in the appendix.
-
-The BLABLA autoencoder performs better. I choose that to extract round(78/3) features. I then combine them with clean data, 30 selected features ,30 PCA-ED extracted features.
-I use RFE with the SVM model I know performs better on a sample of that. The feautres  from the autoencoder latent space are indeed selected.
-I keep 138 features, keeping the dimensionality the same I effectively swap in the new fearures from the autoencoder. 
-
-
-*-- Neural Netwrok classifier
-I create a NN with 3 drop out layers and activity regularizer on the output. Input data has only got the 10 features from the RFE. What I need to do is to get the combo dataset 
-(138 features) concatenate the 10 from the autoencoder and then RFE again this time extracting 100 features.  
-
-*-for later
-Look for Random forest classifier
-If performs better you can use it for RFE lather together with SVC
-You then take original data (cleaned) add features with autoencoder ,and then use RFE with both SVM and CAST5  . Get it down to 5-6 features and use a NN classifier to classify.
-If it all goes well you cna supply figures and descriptiive tables with accuracy (i.e. false positive rate , and recall ) . You could look into the O'reilly book (French man one)
-Also listen to lesson about representation learning and coursework lesso again, and review your notes to add volume to the presentation. 
-Taking out  zero variance variable to increase internal correlation of fwatuss.
-
-Try to heatmap the clean data where y = 1 (attack) vs where y = 0 (normal traffic)
 
 
 
