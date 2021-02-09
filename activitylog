@@ -1,4 +1,4 @@
-In this report I go though my journey of impersonation attack prediction in the AWID dataset as presented in Moodle.
+In this report I go through my journey of impersonation attack prediction in the AWID dataset as presented in Moodle.
 My aim is to provide justifications behind the decisions I take in order to reach a solution to this problem. 
 Tables and figures contribute to the discussion and will be included in the appendix.
 Additionally a process overview diagram is attached to the appendix in order to facilitate the reading of the report itself.
@@ -8,101 +8,81 @@ Given the large number of features captured this is to be expected as some param
 poorly correlated features and weak dependency with the target variable. After all supervised estimators are built upon real world data and as such expect a good degree of
 dependency between features. I'm using accuracy as a performance index to guide me towards the best classifier. This makes sense in this context as the class labels are balanced in both train and test.  
 
-Figure1 and Figure2 represent the values in the dataset through an heatmap where values of zeros are coded in blue and values > 0 are assigned a red shifting gradient. 
+Fig1 and Fig2 represent the values in the dataset through a heatmap where values of zeros are coded in blue and values > 0 are assigned a red shifting gradient. 
 Not just the figure displays the presence of many zeros, but also some features seem to have little to no variation of color throughout the dataset meaning that some of those might have constant values all the way through the samples. 
 
-I decide to spin a few classifiers on the data so to have a feeling for their performance. 
+I decide to spin a few classifiers on the data in order to have a feeling for their performance. 
 I create a validation dataset by putting aside 1/3 of the training data , while keeping the rest of the unprocessed training data for training. 
-I use a support vector classifier with RBF and default regularization parameter. 
+I use a support vector classifier with RBF and default regularization hyperparameter. 
 This estimator gives me a 0.99 accuracy on both the training and validation sets while the accuracy on the real test is just over 52%.  
 
-That not only indicates overfitting , but also shows that the estimate of the validation error is badly 
+That not only indicates overfitting , but also shows that the estimate of the validation error is grossly 
 underestimating the true test error. 
-This issue could potentially compromise model selection and model tuning since knowing what hurts and what helps is significally harder to achieve when everything performs well on both training and validation sets.
-This leads me to consider pre-processing the data and perhaps apply some of the feature extraction and feature selection techniques learned in class. Those should take care of de-noising the data but also improve the overall performance of the algorithms.
+This issue could potentially compromise model selection and model tuning since knowing what hurts and what helps is significantly harder to achieve when everything performs well on both training and validation sets.
+This leads me to consider pre-processing the data and perhaps apply some of the feature extraction and feature selection techniques learned in class. Those should take care of de-noising the data but also of improving the overall performance of the algorithms.
 
-I decide to pre-process the features set with normalization, so that all features have Euclidean length of 1. This ensures the features have the same scale, and also this 
-should 'compress' possible outliers in the data. Effectively all sample are placed on the surface of a N-dimensional sphere of radius 1. 
-This preprocessing technique seems to be the common denominator of several state of the arts papers on this issues , in particular [2] and [3].
+I pre-process the features set with normalization, so that all features have Euclidean length of 1. This ensures the features have the same scale. Additionally this should 'compress' possible outliers in the data. Effectively all samples are placed on the surface of a N-dimensional sphere of radius 1. 
+This preprocessing technique seems to be the common denominator of several state of the arts papers on this issue , in particular [2] and [3].
 This choice also makes sense since I intend to employ a K Nearest Neighbors Classifier , which can be very sensitive to outliers. 
 KNN simply chooses the neighbors based on a distance criteria and is completely non-parametric,
-meaning there are no assumption on the data. I hope that this choice will help me reducing bias of my model, and hopefully getting a more robust estimate 
-of the test error with cross-validation.
+meaning there are no assumptions on the data. I hope that this choice will help me reducing bias of my model, and hopefully getting a more robust estimate of the test error with cross-validation.
 
- In order to prevent knowledge leakage from such learned normalization onto the test set I will use Pipeline.
-Unfortunately even in this case with 10-fold cross-validation the estimated test error rate looks unrealistically high (nearly 100% accuracy).
-while the accuracy on the test set is still unsatisfactory.
-As it stands at the moment the high bias in cross-validation is preventing me from searching for optimal hyper-parameters via grid-search. 
+In order to prevent knowledge leakage from the validation fold into the remainder of the training set I will use Pipeline.
+Unfortunately even in this case with 10-fold cross-validation the estimated test error rate looks unrealistically high (nearly 100% accuracy) while the accuracy on the test set is still unsatisfactory.
+As it stands at the moment the high bias in cross-validation is preventing me from searching for optimal hyper-parameters via grid-search and also from selective a model. 
 The above discouraging results suggest that I need to seek for a better representation of the training feature set. 
 
 One simple solution would be to drop training features which have zero variance. After removing such features from my training dataset I apply the same transformation
-to the test set. Please note that I choose features to drop from training, by detecting constant features from the training dataset. I do not execute such assessment 
-on the test set. Once I store the columns to be dropped in an array, I go ahead applying the transformation to the test set. 
-Generally any transofrmation is "learned" on the training data and only applied on the test data as this is the unseen data , and knowledge should not be leaked from the test set to the training set. 
+to the test set. Please note that I choose features to drop from training, by detecting constant features from the training dataset. I do not execute such assessments on the test set. Once I store the columns to be dropped in an array, I go ahead applying the transformation to the test set. 
+Generally any transformation is "learned" on the training data and only applied on the test data as this is the unseen data , and knowledge should not be leaked from the test set to the training set. 
 After applying the transformation training and test features drops down to 78 (from the original 152). 
 
-As this point I will combine some unsupervised learning techniques for features extraction with feature selection and will bake them into a wrapper 
-called FeatureUnion().  
-I first apply normalization to the clean training data concatenate 10 features obtained by univariate selection (chi2) , 10 from PCA and 10 from Non-Negative Matrix Factorization and I chain the result to a KNN . 
+As this point I will combine some unsupervised learning techniques for features extraction with feature selection and will bake them into a wrapper called FeatureUnion().  
+I first apply normalization to the clean training data by concatenating 10 features obtained by univariate selection (chi2) , 10 from PCA and 10 from Non-Negative Matrix Factorization and I chain the result to a KNN . 
 There is still a huge problem with overfitting. 
  
-To give myself another chance I use a similar technique by selecting a total of 40 features using  filter based feature selection and an additional 30 features dimensionality 
-reduction (with Principal Component Analysis). I merge together to obtain a new training set with 78 features. 
-In a way I try to disqualify those existent features that can't compete anymore with newly engineered one, trying to simulate some sort of 
-'natural selection' within the feature space as better features make their way into the process.
+To give myself another chance I use a similar technique by selecting a total of 40 features using  filter based feature selection and an additional 30 features using dimensionality 
+reduction (Principal Component Analysis). I merge them together to obtain a new training set with 78 features. 
+In a way I’m trying to disqualify those existent features that can't compete anymore with newly engineered one, trying to simulate some sort of 'natural selection' within the feature space as better features make their way into the process.
 Instead a different approach of mixing selected features with engineered features seems to be more prevalent in the literature.
 For example [2] uses a serialized approach where the original feature space is augmented with extracted features, and then shrank back with supervised feature selection.
 
-Moving on, filter based (using chi2 univariate statistics) allows to check importance of features based on how strongly correlated with the target variable. It picks up intrinsic characteristics of the features and this is the reason why I'm choosing this over Recursive Feature Elimination (wrapper method) .Because RFE 'wraps' a separate estimator and fits it to the training data , my worry is that all features could be an excellent choise and would rank very high. I based this on experience from previous steps where I've witnessed severe overfitting with SVM  and KNN. 
+Moving on, filter based (using chi2 univariate statistics) allows to check the importance of features based on how strongly correlated they are with the target variable. Univariate selection (with chi2) picks up intrinsic characteristics of the features and this is the reason why I'm choosing this over Recursive Feature Elimination (wrapper method) . Since RFE 'wraps' a separate estimator and fits it to the training data , my worry is that all features could be an excellent choice and would all rank very high. I based this on experience from previous steps where I've witnessed severe overfitting with both SVM  and KNN. 
 
-I then choose normalizer to preprocess the data and I pipe the whole chain of tranformation into a linear SVM with stochastic gradient descend training. The reason I'm keen to use this different SVM classifier is that I expect stochastic gradient descend training to run faster while fitting the data on my modest 7th Gen Intel i5.
+I then choose normalizer to preprocess the data and I pipe the whole chain of transformation into a linear SVM with stochastic gradient descent training. The reason I'm keen to use this different SVM classifier is that I expect stochastic gradient descent training to run faster while fitting the data on my modest 7th Gen Intel i5.
 I also take advantage of a regularization parameter provided with the estimator interface (alpha parameter).  
 The estimator performs quite well and seems to be very promising as I experience less overfitting and better accuracy by setting the strength of the regularization term 
 10 times stronger than the default from scikit-learn.This reduces drastically overfitting 
-with an estimated test accuracy of 98% with 10-fold cross validation and an accuracy on the test of 96.8%. This is also showing that cross-validation estimate is more reliable. 
+with an estimated test accuracy of 98% with 10-fold cross validation and an accuracy on the test of 96.8%. This is also showing that cross-validation estimate for the test error is more reliable. 
  
-I then check out a RandomForestClassifier on the same trasnformed data as for the previous SVM. I experience overfitting  
-even using very large number of trees (800) each considering up to 5 randomly selected features for each bootstrap dataset .
-Crossvalidation is out of question here because of the highly computational cost accociated with the algorithm. Because of this reason I do not explore further this model as it's not performing as well and it's very expensive.
+I then check out a RandomForestClassifier on the same transformed data as for the previous SVM. 
+I experience overfitting even though I’m using very large number of trees (800) each considering up to 5 randomly selected features for each bootstrap dataset .
+Cross-validation is out of question here because of the highly computational cost associated with the algorithm. Because of this reason I do not explore further this model as it's not performing as well and it's very expensive.
  
 I will try to build one last model, and see if I can improve test accuracy. 
-I build 2 stacked autoencoders with same topology but different activation functions. A plot of their structure is provided in the appendix. 
+I build 2 stacked autoencoders with same topology but different activation functions. A plot of their structure is provided in the appendix (fig3 and fig4). 
 The first one is a vanilla autoencoder , it presents 2 hidden layers  for the encoder, 
-a bottleneck and then grows back simmetrically for the decoder section. Rectified linear units activation functions are used throughout the autoencoder. 
+a bottleneck and then grows back symmetrically for the decoder section. Rectified linear units activation functions are used throughout the autoencoder. 
 The idea is to shrink the number of features down to a third of the original in order to allow it to build some form of internal representation.
-The second one employes the same structure but with a different activation funciotn (LeakyRelu) , batch normalization layers which can act both as a regularizer and 
- and also speed up training according to [5] . Lastly a I bake an activity regularizer in the bottleneck which is supposed to penalize nerons whose activity is higher than
- the average. Effectively this is a sparse autoencoder. 
+The second one employes the same structure but with a different activation function (LeakyRelu) , batch normalization layers which can act both as a regularizer and 
+ and also speed up training according to [5] . Lastly a I bake in an activity regularizer in the bottleneck which is supposed to penalize neurons whose activity is higher than the average. Effectively this is a sparse autoencoder. 
  
 Despite the high tech involved in the second autoencoder it only does marginally better in terms of validation loss. More complex does not mean better. 
 Nonetheless I decide to stick with it just to make the additional effort worth it and I find a compressed representation of the feature space with 26 features.
-I merge the engineered features back to the other engineered data from previous step and I apply RFE to wrap the previous SVM. This time I know that the previous SVM provides a good unbiased estimate for the test error so it makes sense to use this wrapper for features selection. 
-I select 10 best features, and I can see that some of the features generated from the autoencoder are selected. 
+I merge the engineered features back to the other engineered data from the previous step and I apply RFE to wrap the previous SVM. This time I know that the previous SVM provides a good unbiased estimate for the test error so it makes sense to use this wrapper for features selection. 
+I select 10 best features, and I can see that some of the features generated from the autoencoder are indeed selected. 
 
+Finally I get to building a neural network. This process has involved lots of trial and error. The main lesson learned is that having a powerful network with many layers 
+loaded up with plenty of neurons it's not a viable solution and also a bad idea in terms of computational resources. In addition dropout layers are essential tools  
+for helping the trained model to generalise on new unseen instances of the data. A plot of the topology of the network can be found in the appendix (fig7). Essentially it consists of 3 hidden layers with 5 , 4 and 3 neurons and 2 dropout layers. 
+The optimal training stopping is achieved at epoch 13 with a batch size of 512. I've employed the use of callback which provides a mechanism to track the validation loss (measured on a validation split of 1/3 of the training data) and stop training as the loss starts increasing. The network performance in terms of accuracy on the test set is the ballpark of 90% , which is a good result considering the network is trained on only 10 features. For loss and accuracy plot please refer to fig5 and fig6.
 
-Finally I get to building a neural netowrk. This process has invoved lots of trial and error. The main lesson learned is that having a powerful network with many layers 
-loaded up with plenty of neurons it's definetely not the solution and also a bad idea in terms of computational resources. In addition dropout layers are essential tools  
-for helping the trained model to generalise on new unseen instances of the data. A plot of the topology of the network can be found in the appendix. Essentially it consists of 3 hidden layers with 5 , 4 and 3 neurons and 2 dropout layers. 
-The optimal training stopping is achieved at epoch 13 with a batch size of 512. I've employed the use of callback which provides a mechanism to track the validation loss (measured on a validation split of 1/3 of the training data) and stop training as the loss starts increasing.  The network performance in terms of accuracy on the test set is the ball park of 90% , which is a good results considering the network is trained on 10 features. 
-
-In the context of an IDS system given 2 models with the same accuracy, I would choose a model with higher Recall over a model with higher precision.
-In this case both linear SVM and the above neural network performs at a test accuracy of 90% after training on 10 feautures.
-However the linear SVM is my preferred choice as it leaves undetected only 40 attacks compared to 1466 false negatives of the Neural Network with a detection rate of 99.8% .
+In the context of an IDS system given 2 models with the same accuracy, I would choose a model with higher recall over a model with higher precision.
+In this case both linear SVM and the above neural network performs at a test accuracy of 90% after training on 10 features.
+However the linear SVM is my preferred choice as it leaves undetected only 40 attacks compared to 1466 false negatives of the Neural Network hence reaching a detection rate of 99.8% .
 Such rate should be used carefully when attempting to compare this result with established state of the art baseline models. In fact this linear SVM mis-classifies many 
-normal instances as attacks (false alarnm rate ~ 19.3%) , giving the 'illusion' that the recall is actually very good.  
-Training the same linear SVM on a 78 features gives instead an accuracy of 96.7% with a recall of 99.7% and false alarm rate of 6% .
-All in all I'm happy my models perform worse than the current state of the art when adjusting for number of features used (detailed table in the appendix included for comparison). 
-IDS systems will gain more and more importance as we move to 5G where reinforcement learning will be more ubiquitoous in our lifes and critical applications that require high security such as self driving cars, and Industry 4.0 manufacturing plants will gain more traction.  
+normal instances as attacks (false alarm rate ~ 19.3%) , giving the 'illusion' that the recall is actually very good.  
+Training the same linear SVM on a 78 features gives instead an accuracy of 96.7% with a recall of 99.7% and false alarm rate of 6.2% . Please refer to table1 of the appendix for a summary of performance metrics.
+All in all I'm glad my models perform worse than the current state of the art when adjusting for numbers of features used. 
 
-
-[5] Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift
-
-
-
-
-
-
-
-
-
-
+IDS systems will gain more and more importance as we move to 5G where reinforcement learning will be more ubiquitous in our lives and critical applications that require high security such as self driving cars, and Industry 4.0 manufacturing plants will gain more traction. This is an area of research that will enable such new technologies to finally reach their user base. 
